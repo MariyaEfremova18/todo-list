@@ -48,13 +48,28 @@ const App = () => {
     setFilteredTasks(todos);
   }, [filter, sort, currentPage, items]);
 
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     const response = await API.get(`/tasks/${USER_ID}`);
-  //     setItems(response.data.tasks);
-  //   }
-  //   fetchData();
-  // }, [items]);
+  const addItem = async (event) => {
+    if (event.key === "Enter" && event.target.value.trim() !== "") {
+      await API.post(`/task/${USER_ID}`, {
+        name: itemsTitle,
+      });
+      setItemsTitle("");
+    }
+  };
+
+  const checkItem = async (uuid) => {
+    const checkedItems = items.map((i) => {
+      if (i.uuid === uuid) {
+        const element = { ...i };
+        element.done = !i.done;
+        const doneStatus = element.done;
+        API.patch(`/task/${USER_ID}/${uuid}`, { done: doneStatus });
+        return element;
+      }
+      return i;
+    });
+    setItems(checkedItems);
+  };
 
   const deleteItem = async (uuid) => {
     await API.delete(`/task/${USER_ID}/${uuid}`);
@@ -65,15 +80,6 @@ const App = () => {
 
     setCurrentPage(pageNumber);
     setItems(remainingItems);
-  };
-
-  const addItem = async (event) => {
-    if (event.key === "Enter" && event.target.value.trim() !== "") {
-      await API.post(`/task/${USER_ID}`, {
-        name: itemsTitle,
-      });
-      setItemsTitle("");
-    }
   };
 
   const changeCurrentPage = (value) => {
@@ -90,24 +96,6 @@ const App = () => {
   };
 
   const sortItemOnDate = (value) => setSort(value);
-
-  // const async checkItem = (uuid) => {
-  //   await API.put(`/task/${USER_ID}`, {
-  //     name: itemsTitle,
-  //     done: false,
-  //     createdAt: "2022-07-22T07:56:11.126Z",
-  //     updatedAt: "2022-07-22T07:56:11.126Z",
-  //   });
-  //   const checkedItems = items.map((i) => {
-  //     if (i.uuid === uuid) {
-  //       const element = { ...i };
-  //       element.done = !i.done;
-  //       return element;
-  //     }
-  //     return i;
-  //   });
-  //   setItems(checkedItems);
-  // };
 
   // const editItem = (uuid) => {
   //   const editedItem = items.map((item) => {
@@ -166,7 +154,7 @@ const App = () => {
         // onHandleChange={onHandleChange}
         filteredTasks={filteredTasks}
         deleteItem={deleteItem}
-        // checkItem={checkItem}
+        checkItem={checkItem}
         // editItem={editItem}
         // cancelChanges={cancelChanges}
       />
