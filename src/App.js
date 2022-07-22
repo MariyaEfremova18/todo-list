@@ -9,6 +9,7 @@ import API from "./api";
 
 const App = () => {
   const [items, setItems] = useState([]);
+  const [tasks, setTasks] = useState(items);
   const [itemsTitle, setItemsTitle] = useState("");
   const [filter, setFilter] = useState(FILTER.ALL);
   const [sort, setSort] = useState(SORT.ASC);
@@ -16,25 +17,14 @@ const App = () => {
   const [filteredTasks, setFilteredTasks] = useState([]);
 
   useEffect(() => {
-    API.get(`/tasks/2`).then(function (response) {
-      setItems(response.data.tasks);
-    });
-    axios.post(`/task/${USER_ID}`);
-  }, []);
-
-  const deleteItem = (uuid) => {
-    const remainingItems = items.filter((item) => item.uuid !== uuid);
-    const pageNumber = items.length % 5 === 1 ? currentPage - 1 : currentPage;
-    setCurrentPage(pageNumber);
-    setItems(remainingItems);
-    API.delete(`/task/${USER_ID}/${uuid}`).then(function (response) {
-      setItems(response.data.tasks);
-    });
-  };
-
-  useEffect(() => {
     const startItem = (currentPage - 1) * ITEMS_PER_PAGE;
     const endItem = ITEMS_PER_PAGE * currentPage;
+
+    async function fetchData() {
+      const response = await API.get(`/tasks/${USER_ID}`);
+      setItems(response.data.tasks);
+    }
+    fetchData();
 
     const todos = items
       .filter((item) => {
@@ -42,9 +32,9 @@ const App = () => {
           case FILTER.ALL:
             return item;
           case FILTER.DONE:
-            return item.completed === true;
+            return item.done === true;
           case FILTER.UNDONE:
-            return item.completed === false;
+            return item.done === false;
         }
       })
       .sort((a, b) => {
@@ -58,19 +48,30 @@ const App = () => {
     setFilteredTasks(todos);
   }, [filter, sort, currentPage, items]);
 
-  const addItem = (event) => {
-    if (event.key === "Enter" && event.target.value.trim() !== "") {
-      setItems([
-        ...items,
-        {
-          id: Date.now(),
-          title: itemsTitle,
-          completed: false,
-          createdAt: new Date(),
-          edited: false,
-        },
-      ]);
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     const response = await API.get(`/tasks/${USER_ID}`);
+  //     setItems(response.data.tasks);
+  //   }
+  //   fetchData();
+  // }, [items]);
 
+  const deleteItem = async (uuid) => {
+    await API.delete(`/task/${USER_ID}/${uuid}`);
+
+    const remainingItems = items.filter((item) => item.uuid !== uuid);
+
+    const pageNumber = items.length % 5 === 1 ? currentPage - 1 : currentPage;
+
+    setCurrentPage(pageNumber);
+    setItems(remainingItems);
+  };
+
+  const addItem = async (event) => {
+    if (event.key === "Enter" && event.target.value.trim() !== "") {
+      await API.post(`/task/${USER_ID}`, {
+        name: itemsTitle,
+      });
       setItemsTitle("");
     }
   };
@@ -90,59 +91,57 @@ const App = () => {
 
   const sortItemOnDate = (value) => setSort(value);
 
-  const checkItem = (id) => {
-    const checkedItems = items.map((i) => {
-      if (i.id === id) {
-        const element = { ...i };
-        element.completed = !i.completed;
-        return element;
-      }
-      return i;
-    });
-    setItems(checkedItems);
-  };
+  // const async checkItem = (uuid) => {
+  //   await API.put(`/task/${USER_ID}`, {
+  //     name: itemsTitle,
+  //     done: false,
+  //     createdAt: "2022-07-22T07:56:11.126Z",
+  //     updatedAt: "2022-07-22T07:56:11.126Z",
+  //   });
+  //   const checkedItems = items.map((i) => {
+  //     if (i.uuid === uuid) {
+  //       const element = { ...i };
+  //       element.done = !i.done;
+  //       return element;
+  //     }
+  //     return i;
+  //   });
+  //   setItems(checkedItems);
+  // };
 
-  const deleteItem = (id) => {
-    const remainingItems = items.filter((item) => item.id !== id);
+  // const editItem = (uuid) => {
+  //   const editedItem = items.map((item) => {
+  //     if (item.uuid === uuid) {
+  //       const element = { ...item };
+  //       element.edited = !item.edited;
+  //       return element;
+  //     }
+  //     return item;
+  //   });
+  //   setItems(editedItem);
+  // };
 
-    const pageNumber = items.length % 5 === 1 ? currentPage - 1 : currentPage;
-    setCurrentPage(pageNumber);
-    setItems(remainingItems);
-  };
+  // const onHandleChange = (id) => {
+  //   return (key, value) =>
+  //     setItems((prev) =>
+  //       prev.map((todo) => {
+  //         if (todo.id === id) {
+  //           return { ...todo, [key]: value, edited: false };
+  //         }
+  //         return todo;
+  //       })
+  //     );
+  // };
 
-  const editItem = (id) => {
-    const editedItem = items.map((item) => {
-      if (item.id === id) {
-        const element = { ...item };
-        element.edited = !item.edited;
-        return element;
-      }
-      return item;
-    });
-    setItems(editedItem);
-  };
-
-  const onHandleChange = (id) => {
-    return (key, value) =>
-      setItems((prev) =>
-        prev.map((todo) => {
-          if (todo.id === id) {
-            return { ...todo, [key]: value, edited: false };
-          }
-          return todo;
-        })
-      );
-  };
-
-  const cancelChanges = (id) => {
-    const unchangedItems = items.map((item) => {
-      if (item.id === id) {
-        return { ...item, edited: false };
-      }
-      return item;
-    });
-    setItems(unchangedItems);
-  };
+  // const cancelChanges = (id) => {
+  //   const unchangedItems = items.map((item) => {
+  //     if (item.id === id) {
+  //       return { ...item, edited: false };
+  //     }
+  //     return item;
+  //   });
+  //   setItems(unchangedItems);
+  // };
 
   return (
     <div className={style.wrapper}>
@@ -164,12 +163,12 @@ const App = () => {
       )}
 
       <List
-        onHandleChange={onHandleChange}
+        // onHandleChange={onHandleChange}
         filteredTasks={filteredTasks}
         deleteItem={deleteItem}
-        checkItem={checkItem}
-        editItem={editItem}
-        cancelChanges={cancelChanges}
+        // checkItem={checkItem}
+        // editItem={editItem}
+        // cancelChanges={cancelChanges}
       />
 
       {items.length >= 1 ? (

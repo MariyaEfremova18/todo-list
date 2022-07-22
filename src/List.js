@@ -14,13 +14,13 @@ const List = ({
     <ul className={style.list}>
       {filteredTasks.map((item) => (
         <Item
-          onHandleChange={onHandleChange(item.id)}
-          key={item.id}
+          // onHandleChange={onHandleChange(item.id)}
+          key={item.uuid}
           deleteItem={deleteItem}
           item={item}
           checkItem={checkItem}
-          editItem={editItem}
-          cancelChanges={cancelChanges}
+          // editItem={editItem}
+          // cancelChanges={cancelChanges}
         />
       ))}
     </ul>

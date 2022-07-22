@@ -9,41 +9,41 @@ const Item = ({
   onHandleChange,
   cancelChanges,
 }) => {
-  const date = item.createdAt;
-  const currentDate = date.getDate();
-  const currentMonth = date.getMonth();
-  const currentYear = String(date.getFullYear()).slice(2);
-  const strDate = `${currentDate}/${currentMonth}/${currentYear}`;
+  const date = item.createdAt.slice(0, 10);
+  // const currentDate = date.getDate();
+  // const currentMonth = date.getMonth();
+  // const currentYear = String(date.getFullYear()).slice(2);
+  // const strDate = `${currentDate}/${currentMonth}/${currentYear}`;
 
   return (
-    <div className={style.itemOfList} onDoubleClick={() => editItem(item.id)}>
+    <div className={style.itemOfList} onDoubleClick={() => editItem(item.uuid)}>
       <div className={style.content}>
         <input
           type="checkbox"
           className={style.checkbox}
-          defaultChecked={item.completed}
-          onClick={() => checkItem(item.id)}
+          defaultChecked={item.done}
+          onClick={() => checkItem(item.uuid)}
         />
         {item.edited ? (
           <input
             autoFocus
             className={style.editInput}
-            defaultValue={item.title}
+            defaultValue={item.name}
             onKeyDown={(e) => {
               if (e.key === "Enter" && e.target.value.trim() !== "") {
                 onHandleChange("title", e.target.value.trim());
               } else if (e.key === "Escape") {
-                cancelChanges(item.id);
+                cancelChanges(item.uuid);
               }
             }}
           />
         ) : (
-          <p>{item.title}</p>
+          <p>{item.name}</p>
         )}
       </div>
       <div className={style.dateAndDelete}>
-        <p className={style.date}>{strDate}</p>
-        <button onClick={() => deleteItem(item.id)}></button>
+        <p className={style.date}>{date}</p>
+        <button onClick={() => deleteItem(item.uuid)}></button>
       </div>
     </div>
   );
