@@ -4,7 +4,8 @@ import List from "./List";
 import DataSort from "./DataSort";
 import Filter from "./Filter";
 import Pagination from "./Pagination";
-import { ITEMS_PER_PAGE, FILTER, SORT } from "./constants.js";
+import { ITEMS_PER_PAGE, FILTER, SORT, USER_ID } from "./constants.js";
+import API from "./api";
 
 const App = () => {
   const [items, setItems] = useState([]);
@@ -13,6 +14,23 @@ const App = () => {
   const [sort, setSort] = useState(SORT.ASC);
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredTasks, setFilteredTasks] = useState([]);
+
+  useEffect(() => {
+    API.get(`/tasks/2`).then(function (response) {
+      setItems(response.data.tasks);
+    });
+    axios.post(`/task/${USER_ID}`);
+  }, []);
+
+  const deleteItem = (uuid) => {
+    const remainingItems = items.filter((item) => item.uuid !== uuid);
+    const pageNumber = items.length % 5 === 1 ? currentPage - 1 : currentPage;
+    setCurrentPage(pageNumber);
+    setItems(remainingItems);
+    API.delete(`/task/${USER_ID}/${uuid}`).then(function (response) {
+      setItems(response.data.tasks);
+    });
+  };
 
   useEffect(() => {
     const startItem = (currentPage - 1) * ITEMS_PER_PAGE;
