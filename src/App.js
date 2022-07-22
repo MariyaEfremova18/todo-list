@@ -12,41 +12,69 @@ const App = () => {
   const [tasks, setTasks] = useState(items);
   const [itemsTitle, setItemsTitle] = useState("");
   const [filter, setFilter] = useState(FILTER.ALL);
+  const [filterBy, setFilterBy] = useState("filterBy=done");
   const [sort, setSort] = useState(SORT.ASC);
+  const [order, setOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredTasks, setFilteredTasks] = useState([]);
+
+  // const fetchData = () => {
+  //   // if (filter === FILTER.DONE) {
+  //   //   setFilterBy("filterBy=done");
+  //   // } else if (filter === FILTER.UNDONE) {
+  //   //   setFilterBy("filterBy=undone");
+  //   // }
+
+  //   // if (sort === SORT.ASC) {
+  //   //   setSort("order=asc");
+  //   // } else if (filter === FILTER.UNDONE) {
+  //   //   setSort("order=desc");
+  //   // }
+
+  //   // const requestUrl = `API/tasks/${USER_ID}?/${filterBy}&${order}&pp=${ITEMS_PER_PAGE}&page=${currentPage}`;
+  //   const response = API.get(
+  //     `tasks/${USER_ID}?/filterBy=done&order=desc&pp=5&page=1`
+  //   );
+  //   // setItems(response.data.tasks);
+  // };
+
+  // fetchData();
 
   useEffect(() => {
     const startItem = (currentPage - 1) * ITEMS_PER_PAGE;
     const endItem = ITEMS_PER_PAGE * currentPage;
 
     async function fetchData() {
-      const response = await API.get(`/tasks/${USER_ID}`);
+      // const requestUrl = `API/tasks/${USER_ID}?/${filterBy}&${order}&pp=${ITEMS_PER_PAGE}&page=${currentPage}`;
+
+      const response = await API.get(
+        `tasks/${USER_ID}?filterBy=done&order=desc&pp=5&page=1`
+      );
       setItems(response.data.tasks);
     }
     fetchData();
 
-    const todos = items
-      .filter((item) => {
-        switch (filter) {
-          case FILTER.ALL:
-            return item;
-          case FILTER.DONE:
-            return item.done === true;
-          case FILTER.UNDONE:
-            return item.done === false;
-        }
-      })
-      .sort((a, b) => {
-        if (sort === SORT.ASC) {
-          return a.createdAt - b.createdAt;
-        } else if (sort === SORT.DESC) {
-          return b.createdAt - a.createdAt;
-        }
-      })
-      .slice(startItem, endItem);
-    setFilteredTasks(todos);
-  }, [filter, sort, currentPage, items]);
+    //   const todos = items
+    //     .filter((item) => {
+    //       switch (filter) {
+    //         case FILTER.ALL:
+    //           return item;
+    //         case FILTER.DONE:
+    //           return item.done === true;
+    //         case FILTER.UNDONE:
+    //           return item.done === false;
+    //       }
+    //     })
+    //     .sort((a, b) => {
+    //       if (sort === SORT.ASC) {
+    //         return a.createdAt - b.createdAt;
+    //       } else if (sort === SORT.DESC) {
+    //         return b.createdAt - a.createdAt;
+    //       }
+    //     })
+    //     .slice(startItem, endItem);
+    //   setFilteredTasks(todos);
+  }, []);
 
   const addItem = async (event) => {
     if (event.key === "Enter" && event.target.value.trim() !== "") {
@@ -152,7 +180,7 @@ const App = () => {
 
       <List
         // onHandleChange={onHandleChange}
-        filteredTasks={filteredTasks}
+        filteredTasks={items}
         deleteItem={deleteItem}
         checkItem={checkItem}
         // editItem={editItem}
