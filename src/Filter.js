@@ -7,19 +7,19 @@ const Filter = ({ filter, handleFilterItem }) => {
     <div className={style.filterButtons}>
       <button
         className={filter === FILTER.ALL ? `${style.active}` : null}
-        onClick={() => handleFilterItem(FILTER.ALL)}
+        onClick={(filter) => handleFilterItem(FILTER.ALL)}
       >
         All
       </button>
       <button
         className={filter === FILTER.DONE ? `${style.active}` : null}
-        onClick={() => handleFilterItem(FILTER.DONE)}
+        onClick={(filter) => handleFilterItem(FILTER.DONE)}
       >
         Done
       </button>
       <button
         className={filter === FILTER.UNDONE ? `${style.active}` : null}
-        onClick={() => handleFilterItem(FILTER.UNDONE)}
+        onClick={(filter) => handleFilterItem(FILTER.UNDONE)}
       >
         Undone
       </button>

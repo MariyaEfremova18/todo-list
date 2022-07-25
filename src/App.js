@@ -6,6 +6,7 @@ import Filter from "./Filter";
 import Pagination from "./Pagination";
 import { ITEMS_PER_PAGE, FILTER, SORT, USER_ID } from "./constants.js";
 import API from "./api";
+import axios from "axios";
 
 const App = () => {
   const [items, setItems] = useState([]);
@@ -18,62 +19,12 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredTasks, setFilteredTasks] = useState([]);
 
-  // const fetchData = () => {
-  //   // if (filter === FILTER.DONE) {
-  //   //   setFilterBy("filterBy=done");
-  //   // } else if (filter === FILTER.UNDONE) {
-  //   //   setFilterBy("filterBy=undone");
-  //   // }
-
-  //   // if (sort === SORT.ASC) {
-  //   //   setSort("order=asc");
-  //   // } else if (filter === FILTER.UNDONE) {
-  //   //   setSort("order=desc");
-  //   // }
-
-  //   // const requestUrl = `API/tasks/${USER_ID}?/${filterBy}&${order}&pp=${ITEMS_PER_PAGE}&page=${currentPage}`;
-  //   const response = API.get(
-  //     `tasks/${USER_ID}?/filterBy=done&order=desc&pp=5&page=1`
-  //   );
-  //   // setItems(response.data.tasks);
-  // };
-
-  // fetchData();
-
   useEffect(() => {
-    const startItem = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endItem = ITEMS_PER_PAGE * currentPage;
-
-    async function fetchData() {
-      // const requestUrl = `API/tasks/${USER_ID}?/${filterBy}&${order}&pp=${ITEMS_PER_PAGE}&page=${currentPage}`;
-
-      const response = await API.get(
-        `tasks/${USER_ID}?filterBy=done&order=desc&pp=5&page=1`
-      );
-      setItems(response.data.tasks);
-    }
-    fetchData();
-
-    //   const todos = items
-    //     .filter((item) => {
-    //       switch (filter) {
-    //         case FILTER.ALL:
-    //           return item;
-    //         case FILTER.DONE:
-    //           return item.done === true;
-    //         case FILTER.UNDONE:
-    //           return item.done === false;
-    //       }
-    //     })
-    //     .sort((a, b) => {
-    //       if (sort === SORT.ASC) {
-    //         return a.createdAt - b.createdAt;
-    //       } else if (sort === SORT.DESC) {
-    //         return b.createdAt - a.createdAt;
-    //       }
-    //     })
-    //     .slice(startItem, endItem);
-    //   setFilteredTasks(todos);
+    // const startItem = (currentPage - 1) * ITEMS_PER_PAGE;
+    // const endItem = ITEMS_PER_PAGE * currentPage;
+    API.get(`tasks/${USER_ID}`).then((response) =>
+      setItems(response.data.tasks)
+    );
   }, []);
 
   const addItem = async (event) => {
@@ -85,18 +36,15 @@ const App = () => {
     }
   };
 
-  const checkItem = async (uuid) => {
-    const checkedItems = items.map((i) => {
+  const checkItem = (uuid) => {
+    items.forEach((i) => {
       if (i.uuid === uuid) {
         const element = { ...i };
         element.done = !i.done;
         const doneStatus = element.done;
         API.patch(`/task/${USER_ID}/${uuid}`, { done: doneStatus });
-        return element;
       }
-      return i;
     });
-    setItems(checkedItems);
   };
 
   const deleteItem = async (uuid) => {
@@ -118,46 +66,36 @@ const App = () => {
 
   const prevPage = () => setCurrentPage((prev) => prev - 1);
 
-  const handleFilterItem = (value) => {
+  const handleFilterItem = (filter) => {
     setCurrentPage(1);
-    setFilter(value);
+    setFilter(filter);
+
+    API({
+      method: "get",
+      url: `/tasks/${USER_ID}`,
+      params: {
+        filterBy: `${filter}`,
+        order: `${sort}`,
+        pp: `${ITEMS_PER_PAGE}`,
+        page: `${currentPage}`,
+      },
+    }).then((response) => setItems(response.data.tasks));
   };
 
-  const sortItemOnDate = (value) => setSort(value);
+  const sortItemOnDate = (sort) => {
+    setSort(sort);
 
-  // const editItem = (uuid) => {
-  //   const editedItem = items.map((item) => {
-  //     if (item.uuid === uuid) {
-  //       const element = { ...item };
-  //       element.edited = !item.edited;
-  //       return element;
-  //     }
-  //     return item;
-  //   });
-  //   setItems(editedItem);
-  // };
-
-  // const onHandleChange = (id) => {
-  //   return (key, value) =>
-  //     setItems((prev) =>
-  //       prev.map((todo) => {
-  //         if (todo.id === id) {
-  //           return { ...todo, [key]: value, edited: false };
-  //         }
-  //         return todo;
-  //       })
-  //     );
-  // };
-
-  // const cancelChanges = (id) => {
-  //   const unchangedItems = items.map((item) => {
-  //     if (item.id === id) {
-  //       return { ...item, edited: false };
-  //     }
-  //     return item;
-  //   });
-  //   setItems(unchangedItems);
-  // };
+    API({
+      method: "get",
+      url: `/tasks/${USER_ID}`,
+      params: {
+        filterBy: `${filter}`,
+        order: `${sort}`,
+        pp: `${ITEMS_PER_PAGE}`,
+        page: `${currentPage}`,
+      },
+    }).then((response) => setItems(response.data.tasks));
+  };
 
   return (
     <div className={style.wrapper}>

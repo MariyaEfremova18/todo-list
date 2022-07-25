@@ -13,11 +13,11 @@ const DataSort = ({ sortItemOnDate, sort }) => {
               ? `${style.sortingActive} ${style.up}`
               : `${style.up}`
           }
-          onClick={() => sortItemOnDate(SORT.ASC)}
+          onClick={(sort) => sortItemOnDate(SORT.ASC)}
         ></button>
         <button
           className={style.down}
-          onClick={() => sortItemOnDate(SORT.DESC)}
+          onClick={(sort) => sortItemOnDate(SORT.DESC)}
         ></button>
       </p>
     </div>
