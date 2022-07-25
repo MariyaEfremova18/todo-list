@@ -10,14 +10,10 @@ import axios from "axios";
 
 const App = () => {
   const [items, setItems] = useState([]);
-  const [tasks, setTasks] = useState(items);
   const [itemsTitle, setItemsTitle] = useState("");
   const [filter, setFilter] = useState(FILTER.ALL);
-  const [filterBy, setFilterBy] = useState("filterBy=done");
   const [sort, setSort] = useState(SORT.ASC);
-  const [order, setOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [filteredTasks, setFilteredTasks] = useState([]);
   const [itemsCount, setItemsCount] = useState(0);
 
   useEffect(() => {
@@ -34,8 +30,7 @@ const App = () => {
       setItems(response.data.tasks);
       setItemsCount(response.data.count);
     });
-    console.log(currentPage);
-  }, [currentPage]);
+  }, [currentPage, sort, filter, itemsTitle]);
 
   const addItem = async (event) => {
     if (event.key === "Enter" && event.target.value.trim() !== "") {
@@ -70,17 +65,6 @@ const App = () => {
 
   const changeCurrentPage = (currentPage) => {
     setCurrentPage(currentPage);
-
-    API({
-      method: "get",
-      url: `/tasks/${USER_ID}`,
-      params: {
-        filterBy: `${filter}`,
-        order: `${sort}`,
-        pp: `${ITEMS_PER_PAGE}`,
-        page: `${currentPage}`,
-      },
-    }).then((response) => setItems(response.data.tasks));
   };
 
   const nextPage = (value) => setCurrentPage(value);
@@ -90,32 +74,11 @@ const App = () => {
   const handleFilterItem = (filter) => {
     setCurrentPage(1);
     setFilter(filter);
-
-    API({
-      method: "get",
-      url: `/tasks/${USER_ID}`,
-      params: {
-        filterBy: `${filter}`,
-        order: `${sort}`,
-        pp: `${ITEMS_PER_PAGE}`,
-        page: `${currentPage}`,
-      },
-    }).then((response) => setItems(response.data.tasks));
   };
 
   const sortItemOnDate = (sort) => {
     setSort(sort);
-
-    API({
-      method: "get",
-      url: `/tasks/${USER_ID}`,
-      params: {
-        filterBy: `${filter}`,
-        order: `${sort}`,
-        pp: `${ITEMS_PER_PAGE}`,
-        page: `${currentPage}`,
-      },
-    }).then((response) => setItems(response.data.tasks));
+    setCurrentPage(1);
   };
 
   return (
@@ -139,7 +102,7 @@ const App = () => {
 
       <List
         // onHandleChange={onHandleChange}
-        filteredTasks={items}
+        items={items}
         deleteItem={deleteItem}
         checkItem={checkItem}
         // editItem={editItem}

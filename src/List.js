@@ -4,7 +4,7 @@ import style from "./List.module.css";
 
 const List = ({
   onHandleChange,
-  filteredTasks,
+  items,
   deleteItem,
   checkItem,
   editItem,
@@ -12,7 +12,7 @@ const List = ({
 }) => {
   return (
     <ul className={style.list}>
-      {filteredTasks.map((item) => (
+      {items.map((item) => (
         <Item
           // onHandleChange={onHandleChange(item.id)}
           key={item.uuid}
