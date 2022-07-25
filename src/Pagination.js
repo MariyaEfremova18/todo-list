@@ -8,10 +8,11 @@ const Pagination = ({
   nextPage,
   prevPage,
   currentPage,
+  itemsCount,
 }) => {
   const pageCount = [];
 
-  for (let i = 1; i <= Math.ceil(items.length / ITEMS_PER_PAGE); i++) {
+  for (let i = 1; i <= Math.ceil(itemsCount / ITEMS_PER_PAGE); i++) {
     pageCount.push(i);
   }
 
@@ -19,7 +20,10 @@ const Pagination = ({
     <div>
       <ul className={style.pagination}>
         {pageCount.length > 1 ? (
-          <button className={style.pageNumber} onClick={prevPage}>
+          <button
+            className={style.pageNumber}
+            onClick={() => nextPage(currentPage - 1)}
+          >
             &laquo;
           </button>
         ) : (
@@ -41,7 +45,10 @@ const Pagination = ({
         ))}
 
         {pageCount.length > 1 ? (
-          <button className={style.pageNumber} onClick={nextPage}>
+          <button
+            className={style.pageNumber}
+            onClick={() => nextPage(currentPage + 1)}
+          >
             &raquo;
           </button>
         ) : (

@@ -18,14 +18,24 @@ const App = () => {
   const [order, setOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredTasks, setFilteredTasks] = useState([]);
+  const [itemsCount, setItemsCount] = useState(0);
 
   useEffect(() => {
-    // const startItem = (currentPage - 1) * ITEMS_PER_PAGE;
-    // const endItem = ITEMS_PER_PAGE * currentPage;
-    API.get(`tasks/${USER_ID}`).then((response) =>
-      setItems(response.data.tasks)
-    );
-  }, []);
+    API({
+      method: "get",
+      url: `/tasks/${USER_ID}`,
+      params: {
+        filterBy: `${filter}`,
+        order: `${sort}`,
+        pp: `${ITEMS_PER_PAGE}`,
+        page: `${currentPage}`,
+      },
+    }).then((response) => {
+      setItems(response.data.tasks);
+      setItemsCount(response.data.count);
+    });
+    console.log(currentPage);
+  }, [currentPage]);
 
   const addItem = async (event) => {
     if (event.key === "Enter" && event.target.value.trim() !== "") {
@@ -58,13 +68,24 @@ const App = () => {
     setItems(remainingItems);
   };
 
-  const changeCurrentPage = (value) => {
-    setCurrentPage(value);
+  const changeCurrentPage = (currentPage) => {
+    setCurrentPage(currentPage);
+
+    API({
+      method: "get",
+      url: `/tasks/${USER_ID}`,
+      params: {
+        filterBy: `${filter}`,
+        order: `${sort}`,
+        pp: `${ITEMS_PER_PAGE}`,
+        page: `${currentPage}`,
+      },
+    }).then((response) => setItems(response.data.tasks));
   };
 
-  const nextPage = () => setCurrentPage((prev) => prev + 1);
+  const nextPage = (value) => setCurrentPage(value);
 
-  const prevPage = () => setCurrentPage((prev) => prev - 1);
+  const prevPage = (value) => setCurrentPage(value);
 
   const handleFilterItem = (filter) => {
     setCurrentPage(1);
@@ -110,7 +131,7 @@ const App = () => {
         placeholder="I want to..."
       />
 
-      {items.length >= 1 ? (
+      {itemsCount >= 1 ? (
         <DataSort sort={sort} sortItemOnDate={sortItemOnDate} />
       ) : (
         ""
@@ -125,19 +146,20 @@ const App = () => {
         // cancelChanges={cancelChanges}
       />
 
-      {items.length >= 1 ? (
+      {itemsCount >= 1 ? (
         <Filter filter={filter} handleFilterItem={handleFilterItem} />
       ) : (
         ""
       )}
 
-      {items.length > ITEMS_PER_PAGE ? (
+      {itemsCount > ITEMS_PER_PAGE ? (
         <Pagination
           currentPage={currentPage}
           items={items}
           changeCurrentPage={changeCurrentPage}
           nextPage={nextPage}
           prevPage={prevPage}
+          itemsCount={itemsCount}
         />
       ) : (
         ""
